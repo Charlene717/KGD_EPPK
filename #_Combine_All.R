@@ -54,4 +54,14 @@ DimPlot(GSE189889_Seurat, reduction = "umap",group.by = "Dataset", label = TRUE,
 
 VlnPlot(GSE189889_Seurat, features = Marker.lt, ncol = 4)
 
+#### GSE202352 Normal  ####
+GSE202352_Normal <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/GSE202352_combined_seurat_integrated.rds")
+DimPlot(GSE202352_Normal, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+GSE202352_Normal$Dataset <- "GSE202352"
+DimPlot(GSE202352_Normal, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
+
+
+VlnPlot(GSE202352_Normal, features = Marker.lt, ncol = 4)
+
+
 
