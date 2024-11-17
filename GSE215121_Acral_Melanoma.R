@@ -14,6 +14,7 @@ if(!require('Matrix')) install.packages("Matrix"); library(Matrix)
 # folder_path <- "D:/Dropbox/KGD_Lab/20241015 (待整理)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE215121_RAW/"
 folder_path <- "C:/Users/q2330/Dropbox/KGD_Lab/20241015 (已整理)(EPPK)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE215121_RAW/"
 
+
 # Load all .h5 files in the directory
 data_files <- list.files(path = folder_path, pattern = "\\.h5$", full.names = TRUE)
 
@@ -89,6 +90,8 @@ combined_matrix <- do.call(cbind, expression_matrices)
 # Merge all metadata into a single data frame if available
 if (length(metadata_list) > 0) {
   combined_metadata <- do.call(rbind, metadata_list)
+  combined_metadata <- combined_metadata[match(colnames(combined_matrix), rownames(combined_metadata)), , drop = FALSE]
+  rownames(combined_metadata) <- colnames(combined_matrix)
 } else {
   combined_metadata <- NULL
   message("No metadata available to merge.")
