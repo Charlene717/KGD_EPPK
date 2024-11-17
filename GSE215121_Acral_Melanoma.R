@@ -11,10 +11,11 @@ if(!require('Matrix')) install.packages("Matrix"); library(Matrix)
 
 #### Load Data ####
 ## Update the folder path to reflect new location
-folder_path <- "D:/Dropbox/KGD_Lab/20241015 (待整理)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE215121_RAW/"
+# folder_path <- "D:/Dropbox/KGD_Lab/20241015 (待整理)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE215121_RAW/"
+folder_path <- "C:/Users/q2330/Dropbox/KGD_Lab/20241015 (已整理)(EPPK)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE215121_RAW/"
 
 # Load all .h5 files in the directory
-data_files <- list.files(path = folder_path, pattern = "\.h5$", full.names = TRUE)
+data_files <- list.files(path = folder_path, pattern = "\\.h5$", full.names = TRUE)
 
 # Initialize an empty list to store expression matrices and metadata
 expression_matrices <- list()
