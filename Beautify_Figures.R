@@ -22,12 +22,18 @@ VlnPlot(KGD_EPPK_HS23378_2862_Seurat, features = Marker.lt, ncol = 4)
 # Generate a consistent color palette for unique clusters
 color_palette <- colorRampPalette(brewer.pal(8, "Set3"))(length(unique(KGD_EPPK_HS23378_2862_Seurat$seurat_clusters)))
 
-# DimPlot with consistent colors
-DimPlot(KGD_EPPK_HS23378_2862_Seurat, reduction = "umap", group.by = "seurat_clusters", cols = color_palette) + 
+# DimPlot with consistent colors, black border, and increased text size
+DimPlot(KGD_EPPK_HS23378_2862_Seurat, reduction = "umap", label = TRUE,
+        group.by = "seurat_clusters", cols = color_palette) + 
   theme_minimal() +
   ggtitle("UMAP Plot with Consistent Cluster Colors") +
   theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold")
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), # Title size
+    axis.title = element_text(size = 16, face = "bold"), # Axis title size
+    axis.text = element_text(size = 14), # Axis text size
+    legend.title = element_text(size = 16), # Legend title size
+    legend.text = element_text(size = 14), # Legend text size
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 1.5) # Black border around the plot
   )
 
 # VlnPlot with consistent colors
