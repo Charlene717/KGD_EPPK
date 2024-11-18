@@ -8,24 +8,30 @@ if(!require('Seurat')) install.packages('Seurat'); library(Seurat)
 # remotes::install_version("Seurat", version = "4.3.0")
 
 
-
 if(!require("scPred")) devtools::install_github("powellgenomicslab/scPred"); library(scPred)
 # #open for Seurat Mult # trace("project_query", edit=TRUE) # layer = "data"
 # trace("project_query", edit=TRUE) # GetAssayData(new, "data") -> # GetAssayData(new, "RNA")
 
 
 
+# load("D:/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE202352_Normal_Batch effect correction_Temp.RData")
+# # load("C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE202352_Normal_Batch effect correction_Temp.RData")
+# 
+# seuratObject_Sample <- combined_seurat
 
-load("D:/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE202352_Normal_Batch effect correction_Temp.RData")
-# load("C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE202352_Normal_Batch effect correction_Temp.RData")
+seuratObject_Sample <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/EPPK_Project_KGDLab.rds")
 
-seuratObject_Sample <- combined_seurat
+# load("D:/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE189889_Acral_Melanoma_Temp.RData")
+# # load("C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE189889_Acral_Melanoma_Temp.RData")
+# 
+# seuratObject_Ref <- acral_melanoma
+# seuratObject_Ref_ori <- seuratObject_Ref
 
-load("D:/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE189889_Acral_Melanoma_Temp.RData")
-# load("C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/GSE189889_Acral_Melanoma_Temp.RData")
+seuratObject_Ref <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/GSE189889_Acral_Melanoma_SeuratObject_KGDLab.rds")
+DimPlot(seuratObject_Ref, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+seuratObject_Ref$Dataset <- "GSE189889"
+DimPlot(seuratObject_Ref, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
 
-seuratObject_Ref <- acral_melanoma
-seuratObject_Ref_ori <- seuratObject_Ref
 
 # # 移除 blueprint.main 為 NA 的細胞
 # seuratObject_Ref_filtered <- seuratObject_Ref[, !is.na(seuratObject_Ref$blueprint.main)]
