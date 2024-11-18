@@ -19,49 +19,49 @@ Marker.lt <- c("EPGN", "EGFR", "KRT1", "KRT9",
 # # Save Seurat object
 # saveRDS(seurat_obj, file = paste0(folder_path, "KGL_Lab_EPPK_HS23378_2862.rds"))
 
-KGD_EPPK_HS23378_2862_Seurat <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/KGL_Lab_EPPK_HS23378_2862.rds")
+KGD_EPPK_HS23378_2862_Seurat <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/KGL_Lab_EPPK_HS23378_2862.rds")
 DimPlot(KGD_EPPK_HS23378_2862_Seurat, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 KGD_EPPK_HS23378_2862_Seurat$Dataset <- "KGD_EPPK_HS23378_2862"
 DimPlot(KGD_EPPK_HS23378_2862_Seurat, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
 
 
-VlnPlot(KGD_EPPK_HS23378_2862_Seurat, features = Marker.lt, ncol = 4)
+# VlnPlot(KGD_EPPK_HS23378_2862_Seurat, features = Marker.lt, ncol = 4)
 
 
 #### GSE215121 Acral melanoma ####
-folder_path <- "C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/"
+folder_path <- "C:/Charlene/Online_Dataset/EPPK/"
 # load("C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/GSE215121_Acral_Melanoma_Temp.RData")
 # DimPlot(acral_melanoma, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 # 
 # # Save Seurat object
 # saveRDS(acral_melanoma, file = paste0(folder_path, "GSE215121_Acral_Melanoma_SeuratObject.rds"))
 
-GSE215121_Seurat <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/GSE215121_Acral_Melanoma_SeuratObject.rds")
+GSE215121_Seurat <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/GSE215121_Acral_Melanoma_SeuratObject_Integrated.rds")
 DimPlot(GSE215121_Seurat, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 
 GSE215121_Seurat$Dataset <- "GSE215121"
 DimPlot(GSE215121_Seurat, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
 
-VlnPlot(GSE215121_Seurat, features = Marker.lt, ncol = 4)
+# VlnPlot(GSE215121_Seurat, features = Marker.lt, ncol = 4)
 
 
 #### GSE189889 Acral melanoma ####
-GSE189889_Seurat <-  readRDS(file ="C:/Users/q2330/Dropbox/KGD_Lab/20241015 (已整理)(EPPK)(線上資料整理)_Acral Melanoma/Acral melanoma datasets/GSE189889_Acral_Melanoma_SeuratObject.rds")
+GSE189889_Seurat <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/GSE189889_Acral_Melanoma_SeuratObject_KGDLab.rds")
 DimPlot(GSE189889_Seurat, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 GSE189889_Seurat$Dataset <- "GSE189889"
 DimPlot(GSE189889_Seurat, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
 
 
-VlnPlot(GSE189889_Seurat, features = Marker.lt, ncol = 4)
+# VlnPlot(GSE189889_Seurat, features = Marker.lt, ncol = 4)
 
 #### GSE202352 Normal  ####
-GSE202352_Normal <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/Acral_Melanoma/Export/GSE202352_combined_seurat_integrated.rds")
+GSE202352_Normal <-  readRDS(file ="C:/Charlene/Online_Dataset/EPPK/GSE202352_combined_seurat_integrated.rds")
 DimPlot(GSE202352_Normal, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 GSE202352_Normal$Dataset <- "GSE202352"
 DimPlot(GSE202352_Normal, reduction = "umap",group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
 
 
-VlnPlot(GSE202352_Normal, features = Marker.lt, ncol = 4)
+# VlnPlot(GSE202352_Normal, features = Marker.lt, ncol = 4)
 
 
 ###############################################################################
