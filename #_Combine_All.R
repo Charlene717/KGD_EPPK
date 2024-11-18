@@ -64,4 +64,44 @@ DimPlot(GSE202352_Normal, reduction = "umap",group.by = "Dataset", label = TRUE,
 VlnPlot(GSE202352_Normal, features = Marker.lt, ncol = 4)
 
 
+###############################################################################
 
+DefaultAssay(KGD_EPPK_HS23378_2862_Seurat) <- "RNA"
+DefaultAssay(GSE215121_Seurat) <- "RNA"
+DefaultAssay(GSE189889_Seurat) <- "RNA"
+DefaultAssay(GSE202352_Normal) <- "RNA"
+
+#### Preprocessing: Find Integration Anchors ####
+# List of Seurat objects
+seurat.list <- list(KGD_EPPK_HS23378_2862_Seurat, GSE215121_Seurat, GSE189889_Seurat, GSE202352_Normal)
+
+# Standardize the preprocessing steps
+for (i in 1:length(seurat.list)) {
+  seurat.list[[i]] <- NormalizeData(seurat.list[[i]])
+  seurat.list[[i]] <- FindVariableFeatures(seurat.list[[i]], selection.method = "vst", nfeatures = 2000)
+  seurat.list[[i]] <- ScaleData(seurat.list[[i]], features = VariableFeatures(object = seurat.list[[i]]), verbose = FALSE)
+}
+
+# Find integration anchors
+anchors <- FindIntegrationAnchors(object.list = seurat.list, dims = 1:30)
+
+#### Integrate Data ####
+integrated.data <- IntegrateData(anchorset = anchors, dims = 1:30)
+
+# Switch to integrated assay for downstream analysis
+DefaultAssay(integrated.data) <- "integrated"
+
+#### Run Standard Workflow ####
+# Scaling, PCA, UMAP, and Clustering
+integrated.data <- ScaleData(integrated.data, features = rownames(integrated.data), verbose = FALSE)
+integrated.data <- RunPCA(integrated.data, npcs = 30, verbose = FALSE)
+integrated.data <- RunUMAP(integrated.data, reduction = "pca", dims = 1:30)
+integrated.data <- FindNeighbors(integrated.data, dims = 1:30)
+integrated.data <- FindClusters(integrated.data, resolution = 0.5)
+
+#### Visualization ####
+# UMAP Plot
+DimPlot(integrated.data, reduction = "umap", group.by = "Dataset", label = TRUE, pt.size = 0.5) + NoLegend()
+
+# Violin Plot for Marker Genes
+VlnPlot(integrated.data, features = Marker.lt, ncol = 4)
