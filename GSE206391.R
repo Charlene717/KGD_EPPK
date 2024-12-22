@@ -180,13 +180,13 @@ ggplot(plot_data_long, aes(x = group, y = Expression, fill = groupLN)) +
   labs(x = "Group", y = "Expression Level", fill = "GroupLN") +  # 添加標籤
   theme_minimal(base_size = 15) +  # 使用簡潔主題並設定基礎文字大小
   theme(
-    strip.text = element_text(size = 18, face = "bold"),  # 分面標題加大
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),  # X 軸標籤加大並旋轉
-    axis.text.y = element_text(size = 14),  # Y 軸標籤加大
-    axis.title.x = element_text(size = 16, face = "bold"),  # X 軸標題加大
-    axis.title.y = element_text(size = 16, face = "bold"),  # Y 軸標題加大
-    legend.title = element_text(size = 16, face = "bold"),  # 圖例標題加大
-    legend.text = element_text(size = 14)  # 圖例文字加大
+    strip.text = element_text(size = 24, face = "bold"),  # 分面標題加大
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 16),  # X 軸標籤加大並旋轉
+    axis.text.y = element_text(size = 22),  # Y 軸標籤加大
+    axis.title.x = element_text(size = 18, face = "bold"),  # X 軸標題加大
+    axis.title.y = element_text(size = 18, face = "bold"),  # Y 軸標題加大
+    legend.title = element_text(size = 18, face = "bold"),  # 圖例標題加大
+    legend.text = element_text(size = 16)  # 圖例文字加大
   )
 
 
