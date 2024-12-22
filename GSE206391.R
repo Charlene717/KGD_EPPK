@@ -98,8 +98,8 @@ DimPlot(seurat_object, reduction = "umap")
 DimPlot(seurat_object, reduction = "umap", group.by = "patient")
 
 
-seurat_object$patient %>% unique()
-seurat_object$replicates %>% unique()
+seurat_object$patient %>% table()
+seurat_object$replicates %>% table()
 
 
 #### Add disease ####
@@ -121,12 +121,73 @@ table(seurat_object$disease, useNA = "ifany")  # 檢查各類別的分佈
 
 DimPlot(seurat_object, reduction = "umap", group.by = "disease")
 
+seurat_object$patient %>% table()
+seurat_object$patient %>% unique()
+
+
+# 新增 group 欄位
+seurat_object$group <- paste0(seurat_object$disease, "_", sub(".*_", "", seurat_object$replicates))
+seurat_object$groupLN <- paste0(sub(".*_", "", seurat_object$replicates))
+
+# 確認結果
+table(seurat_object$group, useNA = "ifany")  # 查看每個 group 的分佈
+DimPlot(seurat_object, reduction = "umap", group.by = "group")
+
+
+#### Remove NA ####
+# 提取細胞元數據
+metadata <- seurat_object@meta.data
+
+# 找到 patient 為 NA 的條目
+valid_cells <- !is.na(metadata$patient)
+
+# 根據有效細胞更新 Seurat 物件
+seurat_object <- seurat_object[, valid_cells]
+
+# 確認結果
+seurat_object$patient %>% unique()  # 查看是否還有 NA
+
+DimPlot(seurat_object, reduction = "umap", group.by = "group")
+
+seurat_object$group %>% table()
+
+Marker.lt <- c("EPGN", "EGFR","KRT1","KRT9",
+               "KIT","EP300","NF1","COL1A1")
+VlnPlot(seurat_object, features = Marker.lt[1:4],ncol = 2, group.by = "group")
 
 
 
 
 
+# 檢查並載入必要套件
+if (!require('ggplot2')) { install.packages('ggplot2'); library(ggplot2) }
+if (!require('reshape2')) { install.packages('reshape2'); library(reshape2) }
 
+# 定義要繪製的 Marker
+Marker.lt <- c("EPGN", "EGFR")
+
+# 提取數據
+plot_data <- FetchData(seurat_object, vars = c(Marker.lt, "group", "groupLN"))
+
+# 將數據轉換為長格式以適應 ggplot2
+plot_data_long <- reshape2::melt(plot_data, id.vars = c("group", "groupLN"), variable.name = "Marker", value.name = "Expression")
+
+# 繪製 Boxplot
+ggplot(plot_data_long, aes(x = group, y = Expression, fill = groupLN)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) +  # 繪製透明度更高的箱線圖
+  geom_jitter(width = 0.2, size = 1, alpha = 0.2, shape = 21, stroke = 0.5, color = "black") +  # 添加透明點
+  facet_wrap(~ Marker, ncol = 2, scales = "free_y") +  # 分面顯示每個 Marker
+  labs(x = "Group", y = "Expression Level", fill = "GroupLN") +  # 添加標籤
+  theme_minimal(base_size = 15) +  # 使用簡潔主題並設定基礎文字大小
+  theme(
+    strip.text = element_text(size = 18, face = "bold"),  # 分面標題加大
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),  # X 軸標籤加大並旋轉
+    axis.text.y = element_text(size = 14),  # Y 軸標籤加大
+    axis.title.x = element_text(size = 16, face = "bold"),  # X 軸標題加大
+    axis.title.y = element_text(size = 16, face = "bold"),  # Y 軸標題加大
+    legend.title = element_text(size = 16, face = "bold"),  # 圖例標題加大
+    legend.text = element_text(size = 14)  # 圖例文字加大
+  )
 
 
 
