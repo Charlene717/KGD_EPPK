@@ -98,6 +98,34 @@ DimPlot(seurat_object, reduction = "umap")
 DimPlot(seurat_object, reduction = "umap", group.by = "patient")
 
 
+seurat_object$patient %>% unique()
+seurat_object$replicates %>% unique()
+
+
+#### Add disease ####
+# 定義各疾病對應的 patient 編號
+ad_patients <- c(2, 5, 8, 11, 15, 20, 34, 35, 36)
+lp_patients <- c(3, 6, 9, 12, 14, 25, 26, 27, 28, 30, 37)
+pso_patients <- c(1, 10, 13, 19, 22, 29, 31, 32, 33)
+
+# 新增 disease 欄位
+seurat_object$disease <- NA  # 初始化為 NA
+
+# 設定規則
+seurat_object$disease[seurat_object$patient %in% ad_patients] <- "AD"
+seurat_object$disease[seurat_object$patient %in% lp_patients] <- "LP"
+seurat_object$disease[seurat_object$patient %in% pso_patients] <- "Pso"
+
+# 確認新增的欄位
+table(seurat_object$disease, useNA = "ifany")  # 檢查各類別的分佈
+
+DimPlot(seurat_object, reduction = "umap", group.by = "disease")
+
+
+
+
+
+
 
 
 
