@@ -1,47 +1,50 @@
-# Version info: R 4.2.2, Biobase 2.58.0, GEOquery 2.66.0, limma 3.54.0
-################################################################
-#   Data plots for selected GEO samples
+# 確保所需的套件已安裝
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+if (!require("GEOquery")) BiocManager::install("GEOquery")
+if (!require("limma")) BiocManager::install("limma")
 
-# if (!require("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# 
-# BiocManager::install("GEOquery")
-
+# 加載必要的套件
 library(GEOquery)
 library(limma)
-library(umap)
 
-# load series and platform data from GEO
-
-gset <- getGEO("GSE57178", GSEMatrix =TRUE, getGPL=FALSE)
+# 加載數據集
+gset <- getGEO("GSE57178", GSEMatrix = TRUE, getGPL = FALSE)
 if (length(gset) > 1) idx <- grep("GPL6244", attr(gset, "names")) else idx <- 1
 gset <- gset[[idx]]
 
+# 提取表達矩陣
 ex <- exprs(gset)
-# log2 transform
-qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm=T))
-LogC <- (qx[5] > 100) ||
-  (qx[6]-qx[1] > 50 && qx[2] > 0)
-if (LogC) { ex[which(ex <= 0)] <- NaN
-ex <- log2(ex) }
 
-# box-and-whisker plot
-par(mar=c(7,4,2,1))
-title <- paste ("GSE57178", "/", annotation(gset), sep ="")
-boxplot(ex, boxwex=0.7, notch=T, main=title, outline=FALSE, las=2)
+# 檢查是否需要 log2 轉換
+qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm = TRUE))
+LogC <- (qx[5] > 100) || (qx[6] - qx[1] > 50 && qx[2] > 0)
+if (LogC) {
+  ex[which(ex <= 0)] <- NaN
+  ex <- log2(ex)
+}
 
-# expression value distribution plot
-par(mar=c(4,4,2,1))
-title <- paste ("GSE57178", "/", annotation(gset), " value distribution", sep ="")
-plotDensities(ex, main=title, legend=F)
+# 獲取樣本的分組信息
+pdata <- pData(gset)
+groups <- pdata$`characteristics_ch1`  # 假設分組信息在該列
+# 確定組名稱 (例如 "Urticaria" 和 "Normal Skin")
+groups <- gsub(".*condition: ", "", groups)  # 根據數據清理分組標籤
 
-# mean-variance trend
-ex <- na.omit(ex) # eliminate rows with NAs
-plotSA(lmFit(ex), main="Mean variance trend, GSE57178")
+# 獲取 EPGN 的表達數據
+epgn_expr <- ex["EPGN", ]  # 假設行名包含基因名稱
 
-# UMAP plot (multi-dimensional scaling)
-ex <- ex[!duplicated(ex), ]  # remove duplicates
-ump <- umap(t(ex), n_neighbors = 8, random_state = 123)
-plot(ump$layout, main="UMAP plot, nbrs=8", xlab="", ylab="", pch=20, cex=1.5)
-library("maptools")  # point labels without overlaps
-pointLabel(ump$layout, labels = rownames(ump$layout), method="SANN", cex=0.6)
+# 合併分組與表達數據
+data <- data.frame(Expression = epgn_expr, Group = groups)
+
+# 畫盒鬚圖
+boxplot(Expression ~ Group, data = data, 
+        main = "EPGN Expression in Urticaria vs Normal Skin",
+        xlab = "Group",
+        ylab = "Expression Level (log2)",
+        col = c("lightblue", "pink"),
+        border = "black", notch = TRUE)
+
+# 添加統計顯著性檢驗 (t檢驗)
+urticaria <- data$Expression[data$Group == "Urticaria"]
+normal_skin <- data$Expression[data$Group == "Normal Skin"]
+p_value <- t.test(urticaria, normal_skin)$p.value
+legend("topright", legend = paste("p-value =", signif(p_value, 3)), bty = "n")
