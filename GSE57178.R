@@ -11,6 +11,8 @@ if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 if (!require("GEOquery")) {BiocManager::install("GEOquery"); library(GEOquery)}
 if (!require("limma")) {BiocManager::install("limma"); library(limma)}
 
+##### Set Parameter #####
+Set_GeneName <- "EPGN"
 
 ##### Load Dataset #####
 # 加載 GEO 數據
@@ -25,7 +27,8 @@ ex <- exprs(gset)
 platform <- getGEO("GPL6244", AnnotGPL = TRUE)
 annot <- Table(platform)
 
-Set_GeneName <- "EPGN"
+
+#### Data processing ####
 # 確認基因名稱列是否正確 (例如 "Gene symbol")
 epgn_row <- annot$ID[annot$`Gene symbol` == Set_GeneName]
 
@@ -51,6 +54,8 @@ pdata <- pData(gset)
 groups <- pdata$`characteristics_ch1`  # 假設分組信息在該列
 groups <- gsub(".*condition: ", "", groups)  # 清理分組標籤
 
+
+#### Visualization ####
 # 構建數據框
 data <- data.frame(Expression = as.numeric(epgn_expr), Group = groups)
 
