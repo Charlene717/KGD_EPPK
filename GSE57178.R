@@ -1,12 +1,18 @@
-# 確保所需的套件已安裝
+##### Presetting #####
+rm(list = ls()) # Clean variable
+memory.limit(150000)
+
+##### Load Package #####
+if(!require('Seurat')) {install.packages('Seurat'); library(Seurat)}
+if(!require('tidyverse')) {install.packages('tidyverse'); library(tidyverse)}
+if(!require('dplyr')) {install.packages('dplyr'); library(dplyr)}
+
 if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-if (!require("GEOquery")) BiocManager::install("GEOquery")
-if (!require("limma")) BiocManager::install("limma")
+if (!require("GEOquery")) {BiocManager::install("GEOquery"); library(GEOquery)}
+if (!require("limma")) {BiocManager::install("limma"); library(limma)}
 
-# 加載必要的套件
-library(GEOquery)
-library(limma)
 
+##### Load Dataset #####
 # 加載 GEO 數據
 gset <- getGEO("GSE57178", GSEMatrix = TRUE, getGPL = FALSE)
 if (length(gset) > 1) idx <- grep("GPL6244", attr(gset, "names")) else idx <- 1
