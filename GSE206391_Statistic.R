@@ -31,6 +31,8 @@ calculate_stats <- function(data, marker, groups) {
   group1_values <- data_filtered %>% filter(group == groups[1]) %>% pull(!!sym(marker))
   group2_values <- data_filtered %>% filter(group == groups[2]) %>% pull(!!sym(marker))
   p_value <- t.test(group1_values, group2_values)$p.value
+  # p_value <- wilcox.test(group1_values, group2_values)$p.value
+  
   
   return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], logFC = logFC, p_value = p_value))
 }
