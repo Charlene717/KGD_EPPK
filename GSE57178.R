@@ -209,6 +209,7 @@ stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")  # Be
 rownames(stats_results) <- 1:nrow(stats_results)
 stats_results$Disease <- "Urticaria"
 stats_results$Dataset <- "GSE57178"
+stats_results$DataType <- "Array"
 
 # 查看結果
 print(stats_results)
