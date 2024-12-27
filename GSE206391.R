@@ -87,7 +87,7 @@ DimPlot(seurat_object, reduction = "umap", group.by = "disease")
 DimPlot(seurat_object, reduction = "umap", group.by = "seurat_clusters")
 
 ##### Marker Analysis #####
-Marker.lt <- c("EPGN", "EGFR") # c("EPGN", "EGFR", "KRT1", "KRT9", "KIT", "EP300", "NF1", "COL1A1")
+Marker.lt <- c("EPGN", "EGFR", "KRT1", "KRT9", "KIT", "EP300", "NF1", "COL1A1")
 VlnPlot(seurat_object, features = Marker.lt[1:4], ncol = 2, group.by = "group")
 
 ##### Extract Data for Statistical Analysis #####
@@ -100,36 +100,51 @@ group_comparisons <- list(
   c("Pso_NON LESIONAL", "Pso_LESIONAL")
 )
 
-calculate_stats <- function(data, marker, groups) {
+calculate_stats <- function(data, marker, groups, test_method = "t.test") {
   data_filtered <- data %>%
     filter(group %in% groups) %>%
-    select(group, !!sym(marker))
+    select(group, !!sym(marker)) %>%
+    rename(Group = group, Expression = !!sym(marker))
   
   group_means <- data_filtered %>%
-    group_by(group) %>%
-    summarize(mean_expression = mean(!!sym(marker)), .groups = 'drop') %>%
-    arrange(match(group, groups))
+    group_by(Group) %>%
+    summarize(mean_expression = mean(Expression), .groups = 'drop') %>%
+    arrange(match(Group, groups))
   
-  logFC <- log2(group_means$mean_expression[2] / group_means$mean_expression[1])
+  log2FC <- group_means$mean_expression[2] - group_means$mean_expression[1]
+  FC <- 2^log2FC
   
-  group1_values <- data_filtered %>% filter(group == groups[1]) %>% pull(!!sym(marker))
-  group2_values <- data_filtered %>% filter(group == groups[2]) %>% pull(!!sym(marker))
-  p_value <- t.test(group1_values, group2_values)$p.value
+  group1_values <- data_filtered %>% filter(Group == groups[1]) %>% pull(Expression)
+  group2_values <- data_filtered %>% filter(Group == groups[2]) %>% pull(Expression)
   
-  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], logFC = logFC, p_value = p_value))
+  if (test_method == "t.test") {
+    test_result <- t.test(group1_values, group2_values)
+    p_value <- test_result$p.value
+    statistic <- test_result$statistic
+  } else if (test_method == "wilcox.test") {
+    test_result <- wilcox.test(group1_values, group2_values)
+    p_value <- test_result$p.value
+    statistic <- test_result$statistic
+  } else {
+    stop("Unsupported test method: ", test_method)
+  }
+  
+  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, FC = FC, p_value = p_value, statistic = statistic, test = test_method))
 }
 
 stats_results <- lapply(Marker.lt, function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
-    calculate_stats(plot_data, marker, groups)
+    calculate_stats(plot_data, marker, groups, test_method = "t.test")
   }))
 }) %>%
   do.call(rbind, .)
 
 stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")
 
+rownames(stats_results) <- 1:nrow(stats_results)
+
 ##### Save Results #####
-write.csv(stats_results, "group_comparisons_stats_with_adjusted_p.csv", row.names = FALSE)
+write.csv(stats_results, "group_comparisons_stats_with_adjusted_p.csv", row.names = TRUE)
 
 ##### Boxplot Visualization #####
 plot_data_long <- reshape2::melt(plot_data, id.vars = c("group", "groupLN"), variable.name = "Marker", value.name = "Expression")
@@ -149,33 +164,3 @@ ggplot(plot_data_long, aes(x = group, y = Expression, fill = groupLN)) +
     legend.title = element_text(size = 18, face = "bold"),
     legend.text = element_text(size = 16)
   )
-
-
-
-# # Visualize UMAP results
-# DimPlot(acral_melanoma_integrated, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
-# DimPlot(acral_melanoma_integrated, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "curated.cell.types") + NoLegend()
-# DimPlot(acral_melanoma_integrated, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "sample") + NoLegend()
-# 
-# # Find markers for each cluster
-# cluster_markers <- FindAllMarkers(acral_melanoma_integrated, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-# 
-# # Display marker genes
-# print(cluster_markers)
-# 
-# DefaultAssay(acral_melanoma_integrated) <- "RNA"
-# 
-# Marker.lt <- c("EPGN", "EGFR","KRT1","KRT16",
-#                "BRAF","NRAS","NF1","TERT")
-# 
-# Marker.lt <- c("EPGN", "EGFR","KRT1","KRT9",
-#                "KIT","EP300","NF1","COL1A1")
-# VlnPlot(acral_melanoma_integrated, features = Marker.lt,ncol = 4)
-# VlnPlot(acral_melanoma_integrated, features = Marker.lt[1:4],ncol = 2, group.by = "blueprint.main")
-# VlnPlot(acral_melanoma_integrated, features = Marker.lt[5:8],ncol = 2, group.by = "blueprint.main")
-# FeaturePlot(acral_melanoma_integrated, features = Marker.lt,ncol = 4)
-# 
-# FeaturePlot(acral_melanoma_integrated, features = c("EPGN","EGFR","NPEPL1","SERPINA12"),ncol = 4)
-# 
-# # Save Seurat object
-# saveRDS(acral_melanoma_integrated, file = paste0(folder_path, "GSE215121_Acral_Melanoma_SeuratObject_Integrated.rds"))
