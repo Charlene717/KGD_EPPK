@@ -134,7 +134,7 @@ calculate_stats <- function(data, marker, groups, test_method = "t.test") {
 
 stats_results <- lapply(Marker.lt, function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
-    calculate_stats(plot_data, marker, groups, test_method = "t.test")
+    calculate_stats(plot_data, marker, groups, test_method = "wilcox.test")
   }))
 }) %>%
   do.call(rbind, .)
@@ -163,4 +163,19 @@ ggplot(plot_data_long, aes(x = group, y = Expression, fill = groupLN)) +
     axis.title.y = element_text(size = 18, face = "bold"),
     legend.title = element_text(size = 18, face = "bold"),
     legend.text = element_text(size = 16)
+  )
+
+
+##### Distribution Visualization #####
+ggplot(plot_data_long, aes(x = Expression, fill = group)) +
+  geom_density(alpha = 0.7) +
+  facet_wrap(~ Marker, scales = "free", ncol = 2) +
+  labs(title = "Expression Distribution by Marker", x = "Expression Level", y = "Density", fill = "Group") +
+  theme_minimal(base_size = 15) +
+  theme(
+    strip.text = element_text(size = 20, face = "bold"),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 14)
   )
