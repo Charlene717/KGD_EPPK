@@ -7,6 +7,9 @@ if(!require('Seurat')) {install.packages('Seurat'); library(Seurat)}
 if(!require('tidyverse')) {install.packages('tidyverse'); library(tidyverse)}
 if(!require('dplyr')) {install.packages('dplyr'); library(dplyr)}
 
+if(!require('ggplot2')) {install.packages('ggplot2'); library(ggplot2)}
+if(!require('ggsignif')) {install.packages('ggsignif'); library(ggsignif)}
+
 if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
 if (!require("GEOquery")) {BiocManager::install("GEOquery"); library(GEOquery)}
 if (!require("limma")) {BiocManager::install("limma"); library(limma)}
@@ -73,7 +76,7 @@ groups <- gsub(".*condition: ", "", groups)  # 清理分組標籤
 # 構建數據框
 data <- data.frame(Expression = as.numeric(epgn_expr), Group = groups)
 
-# 畫盒鬚圖
+# Basic boxplot
 boxplot(Expression ~ Group, data = data,
         main = paste0(Set_GeneName, " Expression"),
         xlab = "Group",
@@ -81,14 +84,6 @@ boxplot(Expression ~ Group, data = data,
         col = c("pink","lightblue", "lightgreen"),
         border = "black", notch = FALSE)
 
-
-######################
-
-# 確保所需的套件已安裝
-if (!require("ggplot2")) install.packages("ggplot2")
-if (!require("ggsignif")) install.packages("ggsignif")
-
-# 加載所需套件
 library(ggplot2)
 library(ggsignif)
 
@@ -110,7 +105,7 @@ comparisons <- list(
 )
 
 # 繪製盒鬚圖
-ggplot(data, aes(x = Group, y = Expression, fill = Group)) +
+Plot_Box <- ggplot(data, aes(x = Group, y = Expression, fill = Group)) +
   geom_boxplot(outlier.shape = NA, color = "black") +
   geom_jitter(width = 0.2, alpha = 0.7) +
   geom_signif(
@@ -145,6 +140,14 @@ ggplot(data, aes(x = Group, y = Expression, fill = Group)) +
   )+
   scale_y_continuous(limits = c(0, NA)) # 明確設置 y 軸從 0 開始
 
+Plot_Box
+
+# Export PDF
+pdf(paste0(Name_ExportFolder, "/", Name_Export, "_BoxPlot.pdf"),
+    width = 6, height = 6)
+print(Plot_Box)
+
+dev.off()
 
 #### Export ####
 ## Export RData
