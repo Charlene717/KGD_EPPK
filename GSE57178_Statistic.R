@@ -1,9 +1,8 @@
 # 確保載入必要套件
-if (!require('dplyr')) install.packages('dplyr')
-library(dplyr)
+if(!require('dplyr')) {install.packages('dplyr'); library(dplyr)}
 
 # 定義基因列表和比較組別
-Marker.lt <- c("EPGN","EGFR")  # 目前只有一個基因
+Set_GeneName <- c("EPGN","EGFR")  # 目前只有一個基因
 group_comparisons <- list(
   c("Lesional", "Non-lesional"),
   c("Lesional", "Normal")
@@ -38,7 +37,7 @@ calculate_stats <- function(data, marker, groups) {
 }
 
 # 繼續分析和統計
-stats_results <- lapply(Marker.lt, function(marker) {
+stats_results <- lapply(Set_GeneName, function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
     calculate_stats(plot_data, marker, groups)
   }))
@@ -52,4 +51,5 @@ stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")  # Be
 print(stats_results)
 
 # 將結果保存到文件（可選）
-write.csv(stats_results, "group_comparisons_stats_with_adjusted_p.csv", row.names = FALSE)
+write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "stats.csv"), row.names = FALSE)
+
