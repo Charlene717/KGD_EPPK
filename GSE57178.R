@@ -102,8 +102,8 @@ for (gene in names(gene_data_list)) {
   
   # 定義比較組
   comparisons <- list(
-    c("Lesional", "Non-lesional"),
-    c("Lesional", "Normal")
+    c("Non-lesional", "Lesional"),
+    c("Normal", "Lesional")
   )
   
   # 繪製盒鬚圖
@@ -155,8 +155,8 @@ dev.off()
 ##### Statistical Analysis #####
 # 定義比較組別
 group_comparisons <- list(
-  c("Lesional", "Non-lesional"),
-  c("Lesional", "Normal")
+  c("Non-lesional", "Lesional"),
+  c("Normal", "Lesional")
 )
 
 # 計算均值差值和 p 值的函數
