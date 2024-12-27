@@ -31,7 +31,7 @@ gset <- getGEO("GSE57178", GSEMatrix = TRUE, getGPL = FALSE)
 if (length(gset) > 1) idx <- grep("GPL6244", attr(gset, "names")) else idx <- 1
 gset <- gset[[idx]]
 
-# 提取表達矩附
+# 提取表達矩陣
 ex <- exprs(gset)
 
 # 提取註釋數據
@@ -173,13 +173,16 @@ calculate_stats <- function(data, marker, groups) {
     arrange(match(Group, groups))
   
   log2FC <- group_means$mean_expression[2] - group_means$mean_expression[1]
+  FC <- 2^log2FC
   
   # 計算 p 值 (t 檢驗)
   group1_values <- data_filtered %>% filter(Group == groups[1]) %>% pull(Expression)
   group2_values <- data_filtered %>% filter(Group == groups[2]) %>% pull(Expression)
-  p_value <- t.test(group1_values, group2_values)$p.value
+  t_test <- t.test(group1_values, group2_values)
+  p_value <- t_test$p.value
+  t_statistic <- t_test$statistic
   
-  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, p_value = p_value))
+  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, FC = FC, p_value = p_value, t_statistic = t_statistic, test = "t.test"))
 }
 
 # 統計分析
