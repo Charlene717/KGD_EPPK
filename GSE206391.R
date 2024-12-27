@@ -10,6 +10,20 @@ if(!require('tidyverse')) {install.packages('tidyverse'); library(tidyverse)}
 if(!require('reshape2')) {install.packages('reshape2'); library(reshape2)}
 if(!require('dplyr')) {install.packages('dplyr'); library(dplyr)}
 
+##### Set Parameter #####
+Set_GeneName <- c("EPGN", "EGFR") # 多個基因名稱
+Set_DataType <- "GSE206391_ST"
+
+# Set export parameters
+Name_time_wo_micro <- substr(gsub("[- :]", "", as.character(Sys.time())), 1, 10) # Generate unique time-based ID
+Name_FileID <- paste0(Name_time_wo_micro, paste0(sample(LETTERS, 3), collapse = ""))
+Set_note <- paste0(Name_FileID, "_", Set_DataType)
+Name_Export <- paste0(Name_FileID)
+Name_ExportFolder <- paste0("Export_", Set_note)
+# Create export folder if it does not exist
+if (!dir.exists(Name_ExportFolder)){dir.create(Name_ExportFolder)}
+
+
 ##### File Path #####
 file_path <- "C:/Charlene/Dataset_Online/GSE206391/GSE206391_Preprocessed_data.h5"
 h5_file <- H5File$new(file_path, mode = "r")
@@ -87,11 +101,11 @@ DimPlot(seurat_object, reduction = "umap", group.by = "disease")
 DimPlot(seurat_object, reduction = "umap", group.by = "seurat_clusters")
 
 ##### Marker Analysis #####
-Marker.lt <- c("EPGN", "EGFR", "KRT1", "KRT9", "KIT", "EP300", "NF1", "COL1A1")
-VlnPlot(seurat_object, features = Marker.lt[1:4], ncol = 2, group.by = "group")
+# Set_GeneName <- c("EPGN", "EGFR", "KRT1", "KRT9", "KIT", "EP300", "NF1", "COL1A1")
+VlnPlot(seurat_object, features = Set_GeneName[1:4], ncol = 2, group.by = "group")
 
 ##### Extract Data for Statistical Analysis #####
-plot_data <- FetchData(seurat_object, vars = c(Marker.lt, "group", "groupLN"))
+plot_data <- FetchData(seurat_object, vars = c(Set_GeneName, "group", "groupLN"))
 
 ##### Statistical Analysis #####
 group_comparisons <- list(
@@ -132,7 +146,7 @@ calculate_stats <- function(data, marker, groups, test_method = "t.test") {
   return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, FC = FC, p_value = p_value, statistic = statistic, test = test_method))
 }
 
-stats_results <- lapply(Marker.lt, function(marker) {
+stats_results <- lapply(Set_GeneName, function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
     calculate_stats(plot_data, marker, groups, test_method = "wilcox.test")
   }))
@@ -143,8 +157,8 @@ stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")
 
 rownames(stats_results) <- 1:nrow(stats_results)
 
-##### Save Results #####
-write.csv(stats_results, "group_comparisons_stats_with_adjusted_p.csv", row.names = TRUE)
+# 將結果保存到文件
+write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "_stats.csv"), row.names = TRUE)
 
 ##### Boxplot Visualization #####
 plot_data_long <- reshape2::melt(plot_data, id.vars = c("group", "groupLN"), variable.name = "Marker", value.name = "Expression")
@@ -163,7 +177,15 @@ ggplot(plot_data_long, aes(x = group, y = Expression, fill = groupLN)) +
     axis.title.y = element_text(size = 18, face = "bold"),
     legend.title = element_text(size = 18, face = "bold"),
     legend.text = element_text(size = 16)
-  )
+  ) -> Plot_Box
+
+Plot_Box
+
+# 將圖形輸出到 PDF
+pdf(paste0(Name_ExportFolder, "/", Name_Export, "_BoxbPlot.pdf"), width = 12, height = 6)
+print(Plot_Box)
+dev.off()
+
 
 
 ##### Distribution Visualization #####
@@ -178,4 +200,17 @@ ggplot(plot_data_long, aes(x = Expression, fill = group)) +
     axis.title = element_text(size = 16, face = "bold"),
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 14)
-  )
+  )-> Plot_Distrib
+
+Plot_Distrib
+
+# 將圖形輸出到 PDF
+pdf(paste0(Name_ExportFolder, "/", Name_Export, "_DistribPlot.pdf"), width = 12, height = 6)
+print(Plot_Distrib)
+dev.off()
+
+
+#### Export ####
+## Export RData
+save.image(paste0(Name_ExportFolder, "/", Name_Export, ".RData"))
+
