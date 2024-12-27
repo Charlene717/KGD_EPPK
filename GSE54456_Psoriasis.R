@@ -235,9 +235,9 @@ calculate_stats <- function(data, marker, groups, test_method = "wilcox.test") {
     summarize(mean_expression = mean(Expression), .groups = 'drop') %>%
     arrange(match(Group, groups))
   
-  # log2FC = mean(Psoriasis) - mean(Normal)，此處的前後順序可自行調整
-  log2FC <- group_means$mean_expression[1] - group_means$mean_expression[2]
-  FC <- 2^log2FC
+  # FC = mean(Psoriasis) / mean(Normal)，此處的前後順序可自行調整
+  FC <- group_means$mean_expression[1] / group_means$mean_expression[2]
+  log2FC <- log2(FC)
   
   # p-value
   group1_values <- df2 %>% filter(Group == groups[1]) %>% pull(Expression)
