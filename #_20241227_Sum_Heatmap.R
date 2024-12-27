@@ -114,3 +114,23 @@ heatmap <- Heatmap(
 
 # 顯示 Heatmap
 draw(heatmap)
+
+
+#### Export ####
+# Set export parameters
+Name_time_wo_micro <- substr(gsub("[- :]", "", as.character(Sys.time())), 1, 10) # Generate unique time-based ID
+Name_FileID <- paste0(Name_time_wo_micro, paste0(sample(LETTERS, 3), collapse = ""))
+Set_note <- paste0(Name_FileID, "_Sum")
+Name_Export <- paste0(Name_FileID)
+Name_ExportFolder <- paste0("Export_", Set_note)
+# Create export folder if it does not exist
+if (!dir.exists(Name_ExportFolder)){dir.create(Name_ExportFolder)}
+
+# 將圖形輸出到 PDF
+pdf(paste0(Name_ExportFolder, "/", Name_Export, "_heatmap.pdf"), width = 10, height = 8)
+print(heatmap)
+dev.off()
+
+#### Export ####
+## Export RData
+save.image(paste0(Name_ExportFolder, "/", Name_Export, ".RData"))
