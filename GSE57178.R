@@ -207,6 +207,8 @@ stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")  # Be
 
 # 添加行名稱為阿拉伯數字
 rownames(stats_results) <- 1:nrow(stats_results)
+stats_results$Disease <- "Urticaria"
+stats_results$Dataset <- "GSE57178"
 
 # 查看結果
 print(stats_results)
