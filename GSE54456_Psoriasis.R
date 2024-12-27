@@ -174,11 +174,10 @@ plot_list <- list()
 for (gene in names(gene_data_list)) {
   data <- gene_data_list[[gene]]
   
-  # 計算樣本數
-  sample_counts <- table(data$Group)
+  # 設定因子順序 (左到右: Psoriasis -> Normal)
+  data$Group <- factor(data$Group, levels = c("Psoriasis", "Normal"))
   
-  # 只有兩組比較：Normal vs Psoriasis
-  # 可改成 t.test / wilcox.test
+  # 比較組別同樣設定為 Psoriasis 在前、Normal 在後
   comparisons <- list(c("Psoriasis", "Normal"))
   
   Plot_Box <- ggplot(data, aes(x = Group, y = Expression, fill = Group)) +
@@ -187,34 +186,33 @@ for (gene in names(gene_data_list)) {
     geom_signif(
       comparisons = comparisons,
       map_signif_level = TRUE,
-      test = "wilcox.test",   # 與 GSE57178 範例相同使用 Wilcoxon
+      test = "wilcox.test",
       step_increase = 0.2
     ) +
     labs(
       title = paste0(gene, " Expression in Psoriasis vs Normal"),
       x = "Group",
-      y = paste0("Expression (", gene, ")"),
-      caption = paste0(
-        "Psoriasis (n = ", sample_counts["Psoriasis"], "), ",
-        "Normal (n = ", sample_counts["Normal"], ")"
-      )
+      y = paste0("Expression (", gene, ")")
     ) +
-    theme_minimal() +
     scale_fill_manual(values = c("Psoriasis" = "#FF9999", "Normal" = "#9999FF")) +
+    # 在這裡透過 scale_x_discrete() 指定 x 軸顯示順序
+    scale_x_discrete(limits = c("Psoriasis", "Normal")) +
+    theme_minimal() +
     theme(
       plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
       axis.title.x = element_text(size = 14, face = "bold"),
       axis.title.y = element_text(size = 14, face = "bold"),
       axis.text.x = element_text(size = 12, face = "bold"),
       axis.text.y = element_text(size = 12, face = "bold"),
-      plot.caption = element_text(hjust = 0, size = 10),
       legend.position = "none",
       aspect.ratio = 1,
       panel.border = element_rect(color = "black", fill = NA, size = 1)
     )
   
   plot_list[[gene]] <- Plot_Box
+  print(Plot_Box)
 }
+
 
 # 輸出所有基因的 BoxPlot
 pdf(paste0(Name_ExportFolder, "/", Name_Export, "_BoxPlot.pdf"), width = 6, height = 6)
