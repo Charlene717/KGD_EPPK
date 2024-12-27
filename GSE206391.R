@@ -120,6 +120,7 @@ seurat_object$disease[seurat_object$patient %in% pso_patients] <- "Pso"
 table(seurat_object$disease, useNA = "ifany")  # 檢查各類別的分佈
 
 DimPlot(seurat_object, reduction = "umap", group.by = "disease")
+DimPlot(seurat_object, reduction = "umap", group.by = "seurat_clusters")
 
 seurat_object$patient %>% table()
 seurat_object$patient %>% unique()
