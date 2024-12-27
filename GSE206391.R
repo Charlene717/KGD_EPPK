@@ -156,6 +156,30 @@ stats_results <- lapply(Set_GeneName, function(marker) {
 stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")
 
 rownames(stats_results) <- 1:nrow(stats_results)
+stats_results$Disease <- ""
+stats_results$Dataset <- "GSE206391"
+stats_results$DataType <- "Spatial transcriptomics"
+
+# Update Disease and Group1 Formatting
+stats_results <- stats_results %>%
+  mutate(
+    Disease = case_when(
+      str_detect(Group1, "^AD_") ~ "Atopic Dermatitis",
+      str_detect(Group1, "^LP_") ~ "Lichen Planus",
+      str_detect(Group1, "^Pso_") ~ "Psoriasis",
+      TRUE ~ Disease
+    ),
+    Group1 = case_when(
+      str_detect(Group1, "_NON LESIONAL$") ~ "Non-lesional",
+      str_detect(Group1, "_LESIONAL$") ~ "Lesional",
+      TRUE ~ Group1
+    ),
+    Group2 = case_when(
+      str_detect(Group2, "_NON LESIONAL$") ~ "Non-lesional",
+      str_detect(Group2, "_LESIONAL$") ~ "Lesional",
+      TRUE ~ Group2
+    )
+  )
 
 # 將結果保存到文件
 write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "_stats.csv"), row.names = TRUE)
