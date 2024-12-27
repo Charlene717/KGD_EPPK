@@ -197,7 +197,7 @@ calculate_stats <- function(data, marker, groups, test_method = "t.test") {
 # 統計分析
 stats_results <- lapply(names(gene_data_list), function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
-    calculate_stats(gene_data_list[[marker]], marker, groups, test_method = "t.test")
+    calculate_stats(gene_data_list[[marker]], marker, groups, test_method = "wilcox.test")
   }))
 }) %>%
   do.call(rbind, .)
@@ -213,8 +213,41 @@ stats_results$Dataset <- "GSE57178"
 # 查看結果
 print(stats_results)
 
+
 # 將結果保存到文件
 write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "_stats.csv"), row.names = TRUE)
+
+
+
+##### Distribution Visualization #####
+# 將數據轉換為長格式
+plot_data_long <- do.call(rbind, lapply(names(gene_data_list), function(marker) {
+  data <- gene_data_list[[marker]]
+  data$Marker <- marker  # 添加 Marker 列
+  return(data)
+}))
+
+# 基因表達分布圖
+ggplot(plot_data_long, aes(x = Expression, fill = Group)) +
+  geom_density(alpha = 0.7) +
+  facet_wrap(~ Marker, scales = "free", ncol = 2) +
+  labs(title = "Expression Distribution by Marker", x = "Expression Level", y = "Density", fill = "Group") +
+  theme_minimal(base_size = 15) +
+  theme(
+    strip.text = element_text(size = 20, face = "bold"),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16, face = "bold"),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 14)
+  ) -> Plot_Distrib
+
+# 將圖形輸出到 PDF
+pdf(paste0(Name_ExportFolder, "/", Name_Export, "_DistribPlot.pdf"), width = 12, height = 6)
+for (gene in names(plot_list)) {
+  print(Plot_Distrib)
+}
+dev.off()
+
 
 #### Export ####
 ## Export RData
