@@ -244,9 +244,7 @@ ggplot(plot_data_long, aes(x = Expression, fill = Group)) +
 
 # 將圖形輸出到 PDF
 pdf(paste0(Name_ExportFolder, "/", Name_Export, "_DistribPlot.pdf"), width = 12, height = 6)
-for (gene in names(plot_list)) {
   print(Plot_Distrib)
-}
 dev.off()
 
 
