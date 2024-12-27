@@ -160,7 +160,7 @@ group_comparisons <- list(
 )
 
 # 計算均值差值和 p 值的函數
-calculate_stats <- function(data, marker, groups) {
+calculate_stats <- function(data, marker, groups, test_method = "t.test") {
   # 篩選數據
   data_filtered <- data %>%
     filter(Group %in% groups) %>%
@@ -175,20 +175,29 @@ calculate_stats <- function(data, marker, groups) {
   log2FC <- group_means$mean_expression[2] - group_means$mean_expression[1]
   FC <- 2^log2FC
   
-  # 計算 p 值 (t 檢驗)
+  # 計算 p 值
   group1_values <- data_filtered %>% filter(Group == groups[1]) %>% pull(Expression)
   group2_values <- data_filtered %>% filter(Group == groups[2]) %>% pull(Expression)
-  t_test <- t.test(group1_values, group2_values)
-  p_value <- t_test$p.value
-  t_statistic <- t_test$statistic
   
-  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, FC = FC, p_value = p_value, t_statistic = t_statistic, test = "t.test"))
+  if (test_method == "t.test") {
+    test_result <- t.test(group1_values, group2_values)
+    p_value <- test_result$p.value
+    statistic <- test_result$statistic
+  } else if (test_method == "wilcox.test") {
+    test_result <- wilcox.test(group1_values, group2_values)
+    p_value <- test_result$p.value
+    statistic <- test_result$statistic
+  } else {
+    stop("Unsupported test method: ", test_method)
+  }
+  
+  return(data.frame(Marker = marker, Group1 = groups[1], Group2 = groups[2], log2FC = log2FC, FC = FC, p_value = p_value, statistic = statistic, test = test_method))
 }
 
 # 統計分析
 stats_results <- lapply(names(gene_data_list), function(marker) {
   do.call(rbind, lapply(group_comparisons, function(groups) {
-    calculate_stats(gene_data_list[[marker]], marker, groups)
+    calculate_stats(gene_data_list[[marker]], marker, groups, test_method = "t.test")
   }))
 }) %>%
   do.call(rbind, .)
@@ -196,11 +205,14 @@ stats_results <- lapply(names(gene_data_list), function(marker) {
 # 添加校正後的 p 值
 stats_results$p_adjusted <- p.adjust(stats_results$p_value, method = "BH")  # Benjamini-Hochberg 方法
 
+# 添加行名稱為阿拉伯數字
+rownames(stats_results) <- 1:nrow(stats_results)
+
 # 查看結果
 print(stats_results)
 
 # 將結果保存到文件
-write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "_stats.csv"), row.names = FALSE)
+write.csv(stats_results, paste0(Name_ExportFolder, "/", Name_Export, "_stats.csv"), row.names = TRUE)
 
 #### Export ####
 ## Export RData
