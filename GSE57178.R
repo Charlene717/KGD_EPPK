@@ -13,13 +13,13 @@ if (!require("limma")) {BiocManager::install("limma"); library(limma)}
 
 ##### Set Parameter #####
 Set_GeneName <- "EPGN"
-Set_DataType <- ""
+Set_DataType <- "GSE57178_Urticaria"
 
 # Set export parameters
 Name_time_wo_micro <- substr(gsub("[- :]", "", as.character(Sys.time())), 1, 10) # Generate unique time-based ID
 Name_FileID <- paste0(Name_time_wo_micro, paste0(sample(LETTERS, 3), collapse = ""))
 
-Set_note <- paste0(Name_FileID,"_QC",Set_QC)
+Set_note <- paste0(Name_FileID,"_",Set_DataType)
 
 Name_Export <- paste0(Name_FileID)
 Name_ExportFolder <- paste0("Export_",Set_note)
