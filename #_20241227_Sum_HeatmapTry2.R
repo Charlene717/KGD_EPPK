@@ -34,7 +34,12 @@ star_matrix[is.na(star_matrix)] <- ""
 # 動態生成顏色映射，涵蓋所有 Disease 的值
 unique_diseases <- unique(combined_data$Disease)
 custom_colors <- list(
-  Disease = setNames(scales::hue_pal()(length(unique_diseases)), unique_diseases),
+  # Disease = setNames(scales::hue_pal()(length(unique_diseases)), unique_diseases),
+  Disease = c("Atopic Dermatitis" = "#408080", "Lichen Planus" = "#0066CC", "Urticaria" = "#808040", 
+              "Psoriasis" = "#9F4D95",
+              "Ichthyosis_LI" = "#f5d3d3", "Ichthyosis_EI" = "#fcb3b3", "Ichthyosis_CIE" = "#f78383", "Ichthyosis_NS" = "#e85a5a",
+              "EPPK" = "#BF0060", "NPPK" = "#D94600"),
+  
   Dataset = c("GSE192832" = "#BE77FF", "GSE206391" = "#0066CC", "GSE54456" = "#FF0080",
               "GSE57178" = "#019858", "KGD_Lab" = "#BF0060"),
   DataType = c("RNA-seq" = "#5B5B5B", "Array" = "#9D9D9D", "Spatial transcriptomics" = "#3C3C3C"),
