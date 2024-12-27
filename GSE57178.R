@@ -13,6 +13,20 @@ if (!require("limma")) {BiocManager::install("limma"); library(limma)}
 
 ##### Set Parameter #####
 Set_GeneName <- "EPGN"
+Set_DataType <- ""
+
+# Set export parameters
+Name_time_wo_micro <- substr(gsub("[- :]", "", as.character(Sys.time())), 1, 10) # Generate unique time-based ID
+Name_FileID <- paste0(Name_time_wo_micro, paste0(sample(LETTERS, 3), collapse = ""))
+
+Set_note <- paste0(Name_FileID,"_QC",Set_QC)
+
+Name_Export <- paste0(Name_FileID)
+Name_ExportFolder <- paste0("Export_",Set_note)
+# Create export folder if it does not exist
+if (!dir.exists(Name_ExportFolder)){dir.create(Name_ExportFolder)}
+
+
 
 ##### Load Dataset #####
 # 加載 GEO 數據
@@ -130,4 +144,9 @@ ggplot(data, aes(x = Group, y = Expression, fill = Group)) +
     panel.border = element_rect(color = "black", fill = NA, size = 1)
   )+
   scale_y_continuous(limits = c(0, NA)) # 明確設置 y 軸從 0 開始
+
+
+#### Export ####
+## Export RData
+save.image(paste0(Name_ExportFolder,"/", Name_Export,".RData"))
 
