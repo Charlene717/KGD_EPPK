@@ -1,3 +1,8 @@
+## Ref: https://erilu.github.io/bulk-rnaseq-analysis/#Differential_expression_analysis
+## Ref: https://bioinformatics-core-shared-training.github.io/RNAseq-R/rna-seq-de.nb.html
+## Ref: https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html
+
+
 ##### Presetting #####
 rm(list = ls()) # 清空環境
 
@@ -97,6 +102,7 @@ if(Set_NormM == "DESeq2"){
                                 colData = df_coldata, 
                                 design = ~ subtype)
   dds <- estimateSizeFactors(dds)
+  # dds <-DESeq(dds)
   normalized_data <- counts(dds, normalized=TRUE)
   count_data <- normalized_data
   
