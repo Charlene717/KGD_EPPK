@@ -18,7 +18,7 @@ for(pkg in required_packages){
 #### 2. 讀取檔案並整合資料 ####
 ###############################################################################
 # 設定資料夾路徑 (請依實際情況修改)
-data_folder <- "C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Export_Sum_20241227"
+data_folder <- "C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Export_Sum_20241228"
 
 # 取得資料夾中所有 _stats.csv 檔案的路徑
 file_list <- list.files(path = data_folder, pattern = "_stats\\.csv$", full.names = TRUE)
