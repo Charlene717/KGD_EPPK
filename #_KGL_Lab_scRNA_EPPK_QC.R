@@ -323,8 +323,17 @@ FeaturePlot(combined_seurat, features = c("EPGN", "EGFR"), ncol = 4)
 
 ################################################################################
 #### ROGUE ####
+## (T) Define Subcluster
+DimPlot(seuratObject, reduction = "umap", group.by = "Cell_Type")
+DefaultAssay(seuratObject) <- "integrated"
+if(Set_Run_Subcluster){ source("FUN_Subcluster_by_ROGUE.R") }
+seuratObject <- Define_Subcluster(seuratObject,
+                                  ROGUE_Thr = Set_ROGUE_Thr,
+                                  SubClust_Resolution = Set_Clust_resolution,
+                                  Num_PCA = Set_Num_PCA)
 
-
+DimPlot(seuratObject, reduction = "umap", group.by = "Cell_Type")
+DimPlot(seuratObject, reduction = "umap", group.by = "seurat_clusters")
 
 
 ################################################################################
