@@ -257,6 +257,11 @@ if (length(seurat_list_before) > 1 && length(seurat_list) > 1) {
 
 
 #### 整合資料和QC ####
+# # 保留 seurat_list，刪除其餘對象
+# rm(list = setdiff(ls(), "seurat_list"))
+# gc()  # 強制執行垃圾回收以釋放記憶體
+# seurat_list[["TN131"]] <- NULL
+
 # 檢查是否有足夠的 Seurat 物件進行整合
 if (length(seurat_list) > 1) {
   # 使用 SelectIntegrationFeatures 和 FindIntegrationAnchors 來進行批次效應處理
@@ -293,6 +298,45 @@ if (length(seurat_list) > 1) {
 DimPlot(combined_seurat, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "orig.ident") + NoLegend()
 DimPlot(combined_seurat, reduction = "umap", label = F, pt.size = 0.5, group.by = "orig.ident") 
 DimPlot(combined_seurat, reduction = "umap", label = F, pt.size = 0.5, group.by = "seurat_clusters") 
+
+ggplot(combined_seurat@meta.data, aes(x = seurat_clusters, fill = orig.ident)) +
+  geom_bar(color = "black", size = 1.2) +  # 黑色粗框
+  labs(x = "Cell type", y = "Count", fill = "Tissue Type") +
+  theme_minimal() +
+  scale_x_discrete(drop = FALSE) +  # 確保所有 cluster 類別顯示在 x 軸
+  theme(
+    axis.text = element_text(size = 14, face = "bold"),       # x, y 軸標籤加大加粗
+    axis.title = element_text(size = 16, face = "bold"),      # x, y 軸標題加大加粗
+    legend.title = element_text(size = 14, face = "bold"),    # 圖例標題加大加粗
+    legend.text = element_text(size = 12, face = "bold")      # 圖例文字加大加粗
+  )
+
+
+combined_seurat <- ScaleData(combined_seurat, do.center = FALSE)  # 避免居中產生負值
+
+DefaultAssay(combined_seurat) <- "RNA"
+plots <- VlnPlot(combined_seurat, features = c("EPGN", "EGFR"), split.by = "orig.ident", group.by = "seurat_clusters",
+                 pt.size = 0, combine = FALSE)
+wrap_plots(plots = plots, ncol = 1)
+
+FeaturePlot(combined_seurat, features = c("EPGN", "EGFR"), ncol = 4)
+
+################################################################################
+#### Cell Type Annotation ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ################################################################################
 # 後續分析
