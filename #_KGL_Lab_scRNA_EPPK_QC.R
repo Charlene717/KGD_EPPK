@@ -355,7 +355,19 @@ DimPlot(seuratObject_Ref, reduction = "umap", label = TRUE, pt.size = 0.5, group
 seuratObject_Ref$Actual_Cell_Type %>% as.character() %>% table()
 seuratObject_Ref$Actual_Cell_Type %>% is.na() %>% summary()
 
-source("#_FUN_CellTypeAnnot.R")
+source("#_FUN_CellTypeAnnot_20241229.R")
+
+combined_seurat <- Run_singleR(combined_seurat, seuratObject_Ref, 
+                        Set_RefAnnoCol = "Actual_Cell_Type", 
+                        seurat_version = "V5")
+
+# # 臨時編輯 project_query 函數
+# trace("project_query", edit=TRUE) # layer = "data"
+# # 將 GetAssayData(new, "data") 替換為 GetAssayData(new, layer = "data")
+
+combined_seurat <- Run_scPred(combined_seurat, seuratObject_Ref, 
+                               Set_RefAnnoCol = "Actual_Cell_Type", 
+                               seurat_version = "V5")
 
 
 # 定義標註函數列表
@@ -381,7 +393,7 @@ for (func in annotation_functions) {
 
 DimPlot(seuratObject_Sample,group.by = "label_singleR_NoReject", reduction = "umap")
 DimPlot(seuratObject_Sample,group.by = "label_singleR", reduction = "umap")
-
+DimPlot(seuratObject_Sample, reduction = "umap")
 
 DimPlot(seuratObject_Sample,group.by = "label_scPred_NoReject", reduction = "umap")
 DimPlot(seuratObject_Sample,group.by = "label_scPred", reduction = "umap")
