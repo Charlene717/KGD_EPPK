@@ -322,17 +322,60 @@ wrap_plots(plots = plots, ncol = 1)
 FeaturePlot(combined_seurat, features = c("EPGN", "EGFR"), ncol = 4)
 
 ################################################################################
+#### ROGUE ####
+
+
+
+
+################################################################################
 #### Cell Type Annotation ####
 
 
 
+## Reference
+seuratObject_Ref <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Input/rds/Reference/Combined_Fskin_obj_2_1_2_3_webportal_Adult10000.rds")
+
+Set_Ref_Type <-  "Broad"
+if(Set_Ref_Type == "Broad"){
+  seuratObject_Ref$Actual_Cell_Type <- seuratObject_Ref$Cell_Type_Assigned
+}else if(Set_Ref_Type == "Fine"){
+  seuratObject_Ref$Actual_Cell_Type <- seuratObject_Ref$annotation_fine_merged
+}
+
+DimPlot(seuratObject_Ref, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "Actual_Cell_Type") + NoLegend()
+seuratObject_Ref$Actual_Cell_Type %>% as.character() %>% table()
+seuratObject_Ref$Actual_Cell_Type %>% is.na() %>% summary()
+
+source("#_FUN_CellTypeAnnot.R")
+
+
+# 定義標註函數列表
+annotation_functions <- list(
+  Run_singleR,
+  Run_scPred
+  # Run_singleR,
+  # Run_scmap,
+  # Run_SCINA,
+  # Run_scPred,
+  # Run_CHETAH,
+  # Run_scClassify,
+  # Run_Seurat_Annot
+)
 
 
 
+# 依次執行每個標註函數
+for (func in annotation_functions) {
+  try({ seuratObject_Sample <- func(combined_seurat, seuratObject_Ref) })
+}
 
 
+DimPlot(seuratObject_Sample,group.by = "label_singleR_NoReject", reduction = "umap")
+DimPlot(seuratObject_Sample,group.by = "label_singleR", reduction = "umap")
 
 
+DimPlot(seuratObject_Sample,group.by = "label_scPred_NoReject", reduction = "umap")
+DimPlot(seuratObject_Sample,group.by = "label_scPred", reduction = "umap")
 
 
 
