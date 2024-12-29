@@ -10,9 +10,11 @@ if(!require('dplyr')) install.packages("dplyr"); library(dplyr)
 
 #### Load data ####
 
-Set_Dir <- "F:/20230522 fixed single cells 10X_2795+2818+2862+2901/20230522 fixed single cells 10X_2795+2818+2862+2901/results_HS23378_2862/per_sample_outs/2862/count/sample_filtered_feature_bc_matrix"
-seurat_data <- Read10X(data.dir = Set_Dir)
-seurat_obj <- CreateSeuratObject(counts = seurat_data)
+# Set_Dir <- "F:/20230522 fixed single cells 10X_2795+2818+2862+2901/20230522 fixed single cells 10X_2795+2818+2862+2901/results_HS23378_2862/per_sample_outs/2862/count/sample_filtered_feature_bc_matrix"
+# seurat_data <- Read10X(data.dir = Set_Dir)
+# seurat_obj <- CreateSeuratObject(counts = seurat_data)
+
+seurat_obj <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Input/rds/KGL_Lab_EPPK_HS23378_2862.rds")
 
 
 # 添加質控指標
