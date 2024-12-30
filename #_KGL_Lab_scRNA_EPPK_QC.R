@@ -33,7 +33,7 @@ if (!dir.exists(Name_ExportFolder_QC)){dir.create(Name_ExportFolder_QC)}
 
 #### Load Data ####
 # 設定資料夾路徑
-main_folder <- "C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Input/10X/"
+main_folder <- "C:/Charlene/Code_GitHub/KGD_EPPK_20241229/Input/10X/"
 
 # 獲取資料夾中的所有子資料夾
 sub_folders <- list.dirs(main_folder, full.names = TRUE, recursive = FALSE)
@@ -295,8 +295,8 @@ if (length(seurat_list) > 1) {
 }
 
 
-DimPlot(combined_seurat, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "orig.ident") + NoLegend()
 DimPlot(combined_seurat, reduction = "umap", label = F, pt.size = 0.5, group.by = "orig.ident") 
+DimPlot(combined_seurat, reduction = "umap", label = TRUE, pt.size = 0.5, group.by = "orig.ident") + NoLegend()
 DimPlot(combined_seurat, reduction = "umap", label = F, pt.size = 0.5, group.by = "seurat_clusters") 
 
 ggplot(combined_seurat@meta.data, aes(x = seurat_clusters, fill = orig.ident)) +
@@ -321,20 +321,6 @@ wrap_plots(plots = plots, ncol = 1)
 
 FeaturePlot(combined_seurat, features = c("EPGN", "EGFR"), ncol = 4)
 
-################################################################################
-#### ROGUE ####
-## (T) Define Subcluster
-DimPlot(seuratObject, reduction = "umap", group.by = "Cell_Type")
-DefaultAssay(seuratObject) <- "integrated"
-if(Set_Run_Subcluster){ source("FUN_Subcluster_by_ROGUE.R") }
-seuratObject <- Define_Subcluster(seuratObject,
-                                  ROGUE_Thr = Set_ROGUE_Thr,
-                                  SubClust_Resolution = Set_Clust_resolution,
-                                  Num_PCA = Set_Num_PCA)
-
-DimPlot(seuratObject, reduction = "umap", group.by = "Cell_Type")
-DimPlot(seuratObject, reduction = "umap", group.by = "seurat_clusters")
-
 
 ################################################################################
 #### Cell Type Annotation ####
@@ -342,7 +328,7 @@ DimPlot(seuratObject, reduction = "umap", group.by = "seurat_clusters")
 
 
 ## Reference
-seuratObject_Ref <-  readRDS(file ="C:/Users/q2330/Dropbox/##_GitHub/##_KGD_Lab/KGD_EPPK/Input/rds/Reference/Combined_Fskin_obj_2_1_2_3_webportal_Adult10000.rds")
+seuratObject_Ref <-  readRDS(file ="C:/Charlene/Code_GitHub/KGD_EPPK_20241229/Input/rds/Reference/Combined_Fskin_obj_2_1_2_3_webportal_Adult10000.rds")
 
 Set_Ref_Type <-  "Broad"
 if(Set_Ref_Type == "Broad"){
@@ -355,48 +341,143 @@ DimPlot(seuratObject_Ref, reduction = "umap", label = TRUE, pt.size = 0.5, group
 seuratObject_Ref$Actual_Cell_Type %>% as.character() %>% table()
 seuratObject_Ref$Actual_Cell_Type %>% is.na() %>% summary()
 
-source("#_FUN_CellTypeAnnot_20241229.R")
+# source("#_FUN_CellTypeAnnot_20241229.R")
+source("#_FUN_CellTypeAnnot.R")
+
 
 combined_seurat <- Run_singleR(combined_seurat, seuratObject_Ref, 
-                        Set_RefAnnoCol = "Actual_Cell_Type", 
-                        seurat_version = "V5")
+                               Set_RefAnnoCol = "Actual_Cell_Type", 
+                               seurat_version = "V5")
 
 # # 臨時編輯 project_query 函數
+# if(!require("scPred")) devtools::install_github("powellgenomicslab/scPred"); library(scPred)
 # trace("project_query", edit=TRUE) # layer = "data"
 # # 將 GetAssayData(new, "data") 替換為 GetAssayData(new, layer = "data")
 
 combined_seurat <- Run_scPred(combined_seurat, seuratObject_Ref, 
-                               Set_RefAnnoCol = "Actual_Cell_Type", 
-                               seurat_version = "V5")
+                              Set_RefAnnoCol = "Actual_Cell_Type", 
+                              seurat_version = "V5")
 
 
 # 定義標註函數列表
 annotation_functions <- list(
-  Run_singleR,
-  Run_scPred
   # Run_singleR,
-  # Run_scmap,
-  # Run_SCINA,
-  # Run_scPred,
-  # Run_CHETAH,
-  # Run_scClassify,
-  # Run_Seurat_Annot
+  # Run_scPred
+  Run_singleR,
+  Run_scmap,
+  Run_SCINA,
+  Run_scPred,
+  Run_CHETAH,
+  Run_scClassify,
+  Run_Seurat_Annot
 )
 
 
 
 # 依次執行每個標註函數
 for (func in annotation_functions) {
-  try({ seuratObject_Sample <- func(combined_seurat, seuratObject_Ref) })
+  try({ combined_seurat <- func(combined_seurat, seuratObject_Ref) })
 }
 
 
-DimPlot(seuratObject_Sample,group.by = "label_singleR_NoReject", reduction = "umap")
-DimPlot(seuratObject_Sample,group.by = "label_singleR", reduction = "umap")
-DimPlot(seuratObject_Sample, reduction = "umap")
 
-DimPlot(seuratObject_Sample,group.by = "label_scPred_NoReject", reduction = "umap")
-DimPlot(seuratObject_Sample,group.by = "label_scPred", reduction = "umap")
+DimPlot(combined_seurat, reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_singleR_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_singleR", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_scmap_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_scmap", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_SCINA_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_SCINA", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_scPred_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_scPred", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_CHETAH_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_CHETAH", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_scClassify_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_scClassify", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "label_Seurat_NoReject", reduction = "umap")
+DimPlot(combined_seurat,group.by = "label_Seurat", reduction = "umap")
+
+
+
+
+
+# 假設 Seurat object 為seurat_obj
+
+
+# 定義 Cluster 對應的 Cell Type，並為重複的 Cell Type編號
+cluster_to_celltype <- list(
+  `0` = "Keratinocytes_1", `9` = "Keratinocytes_2", `6` = "Keratinocytes_3", `10` = "Keratinocytes_4",
+  `8` = "Mural cell_1",
+  `13` = "Lymphatic endothelium_1",
+  `5` = "DC_or_Macrophage_1",
+  `14` = "Melanocyte_1",
+  `4` = "T_cell_1",
+  `7` = "Vascular_endothelium_1",
+  `1` = "Fibroblast_1", `2` = "Fibroblast_2", `3` = "Fibroblast_3",
+  `12` = "Mast cell",
+  `11` = "Macrophage_1"
+)
+
+
+# 初始化 Cell_Type 欄位
+cell_type <- rep(NA, length(combined_seurat$seurat_clusters))
+
+# 根據 cluster_to_celltype 分配 Cell Type
+for (cluster in names(cluster_to_celltype)) {
+  cell_type[combined_seurat$seurat_clusters == as.numeric(cluster)] <- cluster_to_celltype[[cluster]]
+}
+
+# 將結果添加到 Seurat object
+combined_seurat$Cell_Type <- cell_type
+
+# 檢查結果
+table(combined_seurat$Cell_Type)
+
+
+
+DimPlot(combined_seurat,group.by = "Cell_Type", reduction = "umap")
+
+DimPlot(combined_seurat,group.by = "seurat_clusters", reduction = "umap")
+
+
+
+
+################################################################################
+#### ROGUE ####
+combined_seurat$Cell_Type_Ori <- combined_seurat$Cell_Type
+## (T) Define Subcluster
+DimPlot(combined_seurat, reduction = "umap", group.by = "Cell_Type")
+DefaultAssay(combined_seurat) <- "integrated"
+
+Set_Run_Subcluster <- TRUE
+Set_ROGUE_Thr <- 0.8
+Set_Clust_resolution <- 0.8
+Set_Num_PCA <- 10
+if(Set_Run_Subcluster){ source("FUN_Subcluster_by_ROGUE.R") }
+combined_seurat <- Define_Subcluster(combined_seurat,
+                                     ROGUE_Thr = Set_ROGUE_Thr,
+                                     SubClust_Resolution = Set_Clust_resolution,
+                                     Num_PCA = Set_Num_PCA)
+
+DimPlot(combined_seurat, reduction = "umap", group.by = "Cell_Type")
+DimPlot(combined_seurat, reduction = "umap", group.by = "seurat_clusters")
+
+
+
+
+
+
+
+
+
+
 
 
 
